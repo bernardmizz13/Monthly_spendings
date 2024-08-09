@@ -3,10 +3,10 @@ Repository containg a python script which visualises monthly spendings for eacy 
 To run scirpt open a python envirnoment in your terminal and run:
 
 ```
-python analyze date
+python analyze.py date
 ```
 Instead of date type in the year for which you wish to analyze the monthly spendings, like for example:
 
 ```
-python analyze 2024
+python analyze.py 2024
 ```
