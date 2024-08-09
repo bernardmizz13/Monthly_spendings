@@ -61,7 +61,7 @@ if not os.path.exists('plots/2024'):
 for m in months:
     # group the stats by month
     df_month = stats[stats["Month"] == m]
-    pie = df_month.plot(kind = "pie", legend = False, y='Percentage', figsize=(8, 8), title='Monthly spendings for ' + m, subplots=True)
+    pie = df_month.plot(kind = "pie", legend = True, y='Amount', labels=df_month.Event, autopct='%1.1f%%', figsize=(8, 8), title='Monthly spendings for ' + m, subplots=True)
     fig = pie[0].get_figure()
     fig.savefig("plots/2024/" + m + "_spendings.png")
     print("\nPlotted for", m)
