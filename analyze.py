@@ -54,16 +54,27 @@ stats.to_csv("stats/" + sys.argv[1] + ".csv", index = False)
 print("----------------------------")
 print("\nWill now plot pie charts!")
 
-if not os.path.exists('plots/2024'):
-    os.mkdir('plots/2024')
+if not os.path.exists('plots/' + sys.argv[1]):
+    os.mkdir('plots/' + sys.argv[1])
 
 # iterate the stats using the month
 for m in months:
     # group the stats by month
     df_month = stats[stats["Month"] == m]
-    pie = df_month.plot(kind = "pie", legend = True, y='Amount', labels=df_month.Event, autopct='%1.1f%%', figsize=(8, 8), title='Monthly spendings for ' + m, subplots=True)
-    fig = pie[0].get_figure()
-    fig.savefig("plots/2024/" + m + "_spendings.png")
+    labels_ = df_month.Event
+    amounts = df_month.Amount
+    labels = [f'{l}, EUR {s:0.2f}' for l, s in zip(labels_, amounts)]
+    # Create a larger figure
+    plt.figure(figsize=(19, 19))
+    # Plot the pie chart
+    pie = plt.pie(amounts,autopct='%1.1f%%', radius=3000, frame=False,   pctdistance=0.85, labeldistance=2.1, startangle=140)
+    plt.axis('equal')
+    # Add a legend
+    plt.legend(bbox_to_anchor=(0.85, 1), loc='upper left', labels=labels, fontsize=15)
+    # Add a title
+    plt.title("Monthly spendings for " + m + " " + sys.argv[1], fontsize=25)
+    # Save the pie chart
+    plt.savefig("plots/2024/" + m + "_spendings.png")
     print("\nPlotted for", m)
     
 print("----------------------------")
