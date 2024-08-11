@@ -16,6 +16,8 @@ df_earnings = pd.read_csv("data/" + sys.argv[1] + "_monthly_earnings.csv", sep =
 
 print("\nSuccessfully read the monthly earnings CSV for year", sys.argv[1])
 
+###########################################################
+
 #print(df_earnings.info)
 
 # retrieve the months
@@ -55,6 +57,58 @@ if not os.path.exists('stats/' + sys.argv[1]):
     os.mkdir('stats/' + sys.argv[1])
 
 stats.to_csv("stats/" + sys.argv[1] + "/" + sys.argv[1] + "_monthly_stats.csv", index = False)
+
+###########################################################
+
+print("----------------------------")
+print("\nWill now plot line graphs!")
+
+events = stats.Event.unique()
+
+# check each event and then each month to see what was spent on that event each month
+for e in events:
+    # list to store the amount spent for that event for each month
+    amounts = []
+    for m in months:
+        df_month = stats[stats["Month"] == m]
+        df_event = df_month[df_month["Event"] == e]
+        
+        # check whether there was this particular event, get the no. of rows
+        no_of_events = df_event.shape[0]
+        
+        # if there were no events then add 0, else add the amount
+        if no_of_events == 0:
+            amounts = amounts + [0]
+        else:
+            amounts = amounts + [df_event.Amount.tolist()[0]]
+
+    # create a dataframe
+    e_monthly = pd.DataFrame({"Month": months, "Amount": amounts, "Average_per_month": [np.round(np.average(amounts), 2)] * len(months)})
+    e_monthly.to_csv("stats/" + sys.argv[1] + "/" + sys.argv[1] + "_" + e + "_monthly_spendings.csv")
+
+    plt.figure()
+    
+
+    # Plot the first line
+    plt.plot(months, amounts, marker='o', linestyle='-', color='b', label='Amount spent EUR ' + str(np.round(np.sum(amounts), 2)))
+
+    # Add a title and labels
+    plt.title('Amount spent monthly for ' + e + ' for year ' + sys.argv[1])
+    plt.xlabel('Month')
+
+    # Add a grid
+    plt.grid(True)
+
+    # Show the legend
+    plt.legend()
+
+    # Display the graph
+    plt.savefig("plots/" + sys.argv[1] + "/" + sys.argv[1] + "_" + e + "_monthly_spendings.png")        
+    plt.close()
+    # plot for each month
+    print("\nPlotted amounts spent monthly for " + e)
+    
+###########################################################
 print("----------------------------")
 print("\nWill now plot pie charts!")
 
@@ -79,9 +133,10 @@ for m in months:
     plt.title("Monthly spendings for " + m + " " + sys.argv[1], fontsize=25)
     # Save the pie chart
     plt.savefig("plots/" + sys.argv[1] + "/" + sys.argv[1] + "_" + m + "_spendings.png")
+    plt.close()
     print("\nPlotted for", m)
-    
-
+ 
+###########################################################
 
 if sys.argv[2] is 'y':
     print("----------------------------")
@@ -145,6 +200,7 @@ if sys.argv[2] is 'y':
 
     # Display the graph
     plt.savefig("plots/" + sys.argv[1] + "/" + sys.argv[1] + "_sports_stats.png")
+    plt.close()
     
     print("\nPlotted sports data!")
 
