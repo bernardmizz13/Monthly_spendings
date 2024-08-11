@@ -27,6 +27,7 @@ print("\n", months)
 stats = pd.DataFrame(columns=["Month", "Event", "Amount", "Percentage"])
 
 print("----------------------------")
+print("\nWill now save stats for year " + sys.argv[1])
 
 # iterate the data using the month
 for m in months:
@@ -50,7 +51,10 @@ for m in months:
         
     print("\nCompleted stats for", m)
 
-stats.to_csv("stats/" + sys.argv[1] + ".csv", index = False)
+if not os.path.exists('stats/' + sys.argv[1]):
+    os.mkdir('stats/' + sys.argv[1])
+
+stats.to_csv("stats/" + sys.argv[1] + "/" + sys.argv[1] + "_monthly_stats.csv", index = False)
 print("----------------------------")
 print("\nWill now plot pie charts!")
 
@@ -74,8 +78,75 @@ for m in months:
     # Add a title
     plt.title("Monthly spendings for " + m + " " + sys.argv[1], fontsize=25)
     # Save the pie chart
-    plt.savefig("plots/2024/" + m + "_spendings.png")
+    plt.savefig("plots/" + sys.argv[1] + "/" + sys.argv[1] + "_" + m + "_spendings.png")
     print("\nPlotted for", m)
     
+
+
+if sys.argv[2] is 'y':
+    print("----------------------------")
+    print("\nWill now count how much money was spent on 5aside football and how much we attended in " + sys.argv[1])
+    
+    att = 0
+    total = 0
+    
+    # Create dataframes to store stats in them
+    total_sports = pd.DataFrame(columns=["Attended", "Amount", "Average_att_per_month", "Average_spent_per_month"])
+    monthly_sports = pd.DataFrame(columns=["Month", "Attended", "Amount"])
+    
+    # for each month count how many football we attended
+    for m in months:
+        print("\nRetrieved the data for", m)
+        df_month = df_spendings[df_spendings["Month"] == m]
+        df_football = df_month[df_month["Event"] == 'Sports']
+        # retrieve the amount of times we attended sports
+        a = df_month['Event'].value_counts()['Sports']
+        # retrieve the money spent on sports
+        t = np.sum(df_football.Amount)
+        # add the total number of instances and amount spent
+        att += a
+        total += t
+        # append the data in the stats csv
+        monthly_sports = monthly_sports.append({"Month": m, "Attended": a, "Amount": t}, ignore_index = True)
+    
+    print("\nTotal yearly sports stats:")
+    print("EUR " + str(total))
+    print("Attended " + str(att))
+    print("Average spent per month EUR", str(np.round(total/len(months), 2)))
+    print("Average att. per month", str(np.round(att/len(months), 2)))
+    
+    # append the data in the stats csv
+    total_sports = total_sports.append({"Attended": att, "Amount": total, "Average_att_per_month": np.round(att/len(months), 2), "Average_spent_per_month": np.round(total/len(months), 2)}, ignore_index = True)
+    
+    total_sports.to_csv("stats/" + sys.argv[1] + "/" + sys.argv[1] + "_sports_yearly_stats.csv", index = False)
+    monthly_sports.to_csv("stats/" + sys.argv[1] + "/" + sys.argv[1] + "_sports_monthly_stats.csv", index = False)
+
+    print("\nStats saved!")
+    
+    print("\nWill now plot sports data!")
+    
+    plt.figure()
+    
+    # Plot the first line
+    plt.plot(months, monthly_sports.Attended, marker='o', linestyle='-', color='b', label='Sports attended ' + str(att))
+
+    # Plot the second line
+    plt.plot(months, monthly_sports.Amount, marker='s', linestyle='--', color='r', label='Spent on sports EUR' + str(total))
+
+    # Add a title and labels
+    plt.title('Sports stats for year ' + sys.argv[1])
+    plt.xlabel('Month')
+
+    # Add a grid
+    plt.grid(True)
+
+    # Show the legend
+    plt.legend()
+
+    # Display the graph
+    plt.savefig("plots/" + sys.argv[1] + "/" + sys.argv[1] + "_sports_stats.png")
+    
+    print("\nPlotted sports data!")
+
 print("----------------------------")
-print("Finished!")
+print("\nFinished!")
