@@ -22,16 +22,12 @@ df_spendings = pd.read_csv("data/" + sys.argv[1] + "_monthly_spendings.csv", sep
 
 print("\nSuccessfully read the monthly spendings CSV for year", sys.argv[1])
 
-#print(df_spendings.info)
-
 # read the monthly earnings csv, pass the year as a command line argument when running the script
 df_earnings = pd.read_csv("data/" + sys.argv[1] + "_monthly_earnings.csv", sep = ",")
 
 print("\nSuccessfully read the monthly earnings CSV for year", sys.argv[1])
 
 ###########################################################
-
-#print(df_earnings.info)
 
 # retrieve the months
 months = df_spendings.Month.unique()
@@ -135,7 +131,7 @@ for e in events:
     plt.close()
     # plot for each month
     print("\nPlotted amounts spent monthly for " + e)
-    print("Total: " + str(np.sum(amounts)))
+    print("Total: " + str(np.round(np.sum(amounts), 2)))
     print("Monthly average: " + str(np.round(np.average(amounts), 2)))
 
 # Define the positions of the bars
@@ -280,6 +276,81 @@ if sys.argv[2] is 'y':
     plt.close()
     
     print("\nPlotted sports data!")
+
+###########################################################
+
+print("\nWill now calculate how much we managed to save in " + sys.argv[1])
+
+# Createdataframe storing thje total spend for each month
+total_month_spend = pd.DataFrame(columns = ["Month", "Spent"])
+
+# Createdataframe storing thje total saved for each month
+total_month_save = pd.DataFrame(columns = ["Month", "Saved"])
+
+# Createdataframe storing thje total saved for each month
+total_month_earn = pd.DataFrame(columns = ["Month", "Earned"])
+
+for m in months:
+    # get the spendings for the month
+    month_spend = stats[stats.Month == m]
+    
+    # sum the amount spent for the month
+    s = np.sum(month_spend.Amount)
+    
+    # append the monthly spend for the month
+    total_month_spend = total_month_spend.append({"Month": m, "Spent": s}, ignore_index = True)
+    
+    # calculate the earnings for the month
+    month_earn = df_earnings[df_earnings.Month == m]
+    
+    # sum the amount earned for the month
+    e = np.sum(month_earn.Net_pay)
+    
+    # calculate the amount saved
+    saved = e - s        
+    
+    # append the monthly saved for the month
+    total_month_save = total_month_save.append({"Month": m, "Saved": saved}, ignore_index = True)
+    
+    # append the monthly earned for the month
+    total_month_earn = total_month_earn.append({"Month": m, "Earned": e}, ignore_index = True)
+    
+    print("\nCalculated for " + m)
+
+total_month_save.to_csv("stats/2024/month/" + sys.argv[1] + "_monthly_savings.csv", index = False)
+total_month_spend.to_csv("stats/2024/month/" + sys.argv[1] + "_monthly_spendings.csv", index = False)
+total_month_earn.to_csv("stats/2024/month/" + sys.argv[1] + "_monthly_earnings.csv", index = False)
+
+print("\nSaved the CSVs!")
+
+###########################################################
+
+print("\nWill now plot earnings, spendings and savings for each month in " + sys.argv[1])
+
+plt.figure()
+# Plot the first line
+plt.plot(months, total_month_save.Saved.tolist(), marker='o', linestyle='-', color='b', label='Amount saved EUR ' + str(np.sum(total_month_earn.Earned)))
+plt.plot(months, total_month_spend.Spent.tolist(), marker='s', linestyle='--', color='r', label='Amount spent EUR ' + str(np.sum(total_month_spend.Spent)))
+plt.plot(months, total_month_earn.Earned.tolist(), marker='*', linestyle='-.', color='g', label='Amount earned EUR ' + str(np.sum(total_month_save.Saved)))
+# Add a title and labels
+plt.title('Amounts earned, spent and saved monthly for year ' + sys.argv[1])
+plt.xlabel('Month')
+# Add a grid
+plt.grid(True)
+# Show the legend
+plt.legend()
+# Display the graph
+plt.savefig("plots/" + sys.argv[1] + "/month/" + sys.argv[1] + "_monthly_e_s_s.png")        
+plt.close()
+
+print("\nSuccessfully plotted the graphs!")
+    
+print("\nFor year " + sys.argv[1])
+print("Earned: " + str(np.sum(total_month_earn.Earned)))
+print("Spent: " + str(np.sum(total_month_spend.Spent)))
+print("Saved: " + str(np.sum(total_month_save.Saved)))
+
+###########################################################
 
 print("----------------------------")
 print("\nFinished!")
