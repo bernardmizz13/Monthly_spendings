@@ -3,6 +3,27 @@ import numpy as np # for mathematical use
 import matplotlib.pyplot as plt # for data visualisation
 import sys # for command line arguments
 import os # to create directory
+import shutil # for folder deletion
+
+# Path to the "stats" folder
+folder_path = 'stats'
+
+# Check if the folder exists before attempting to delete
+if os.path.exists(folder_path):
+    shutil.rmtree(folder_path)
+    print(f"The folder '{folder_path}' and all its contents have been deleted.")
+else:
+    print(f"The folder '{folder_path}' does not exist.")
+    
+    # Path to the "plots" folder
+folder_path = 'plots'
+
+# Check if the folder exists before attempting to delete
+if os.path.exists(folder_path):
+    shutil.rmtree(folder_path)
+    print(f"The folder '{folder_path}' and all its contents have been deleted.")
+else:
+    print(f"The folder '{folder_path}' does not exist.")
 
 if not os.path.exists('stats'):
     os.mkdir('stats')
