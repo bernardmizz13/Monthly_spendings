@@ -4,13 +4,50 @@ import matplotlib.pyplot as plt # for data visualisation
 import sys # for command line arguments
 import os # to create directory
 import shutil # for folder deletion
+import stat # for folder removal
 
 # Path to the "stats" folder
 folder_path = 'stats'
 
+def rmtree(top):
+    for root, dirs, files in os.walk(top, topdown=False):
+        for name in files:
+            filename = os.path.join(root, name)
+            try:
+                os.chmod(filename, stat.S_IWRITE)
+                os.remove(filename)
+            except PermissionError:
+                print(f"Permission denied: {filename}. Trying to force delete.")
+                try:
+                    os.remove(filename)
+                except Exception as e:
+                    print(f"Failed to delete {filename}: {e}")
+
+        for name in dirs:
+            dirpath = os.path.join(root, name)
+            try:
+                os.rmdir(dirpath)
+            except OSError as e:
+                print(f"Failed to delete {dirpath}: {e}")
+                # Try using shutil if os.rmdir fails
+                try:
+                    shutil.rmtree(dirpath)
+                except Exception as e:
+                    print(f"shutil failed to delete {dirpath}: {e}")
+
+    try:
+        os.rmdir(top)
+    except OSError as e:
+        print(f"Failed to delete the top directory {top}: {e}")
+        try:
+            shutil.rmtree(top)
+        except Exception as e:
+            print(f"shutil failed to delete the top directory {top}: {e}")
+
+
 # Check if the folder exists before attempting to delete
 if os.path.exists(folder_path):
-    shutil.rmtree(folder_path)
+    rmtree(folder_path)
     print(f"The folder '{folder_path}' and all its contents have been deleted.")
 else:
     print(f"The folder '{folder_path}' does not exist.")
@@ -20,7 +57,7 @@ folder_path = 'plots'
 
 # Check if the folder exists before attempting to delete
 if os.path.exists(folder_path):
-    shutil.rmtree(folder_path)
+    rmtree(folder_path)
     print(f"The folder '{folder_path}' and all its contents have been deleted.")
 else:
     print(f"The folder '{folder_path}' does not exist.")
@@ -224,79 +261,79 @@ for m in months:
     print("\nPlotted for", m)
  
 ###########################################################
+if len(sys.argv) > 2:
+    if sys.argv[2] is 'y':
 
-if sys.argv[2] is 'y':
-
-    if not os.path.exists('plots/' + sys.argv[1] + '/sports'):
-        os.mkdir('plots/' + sys.argv[1] + '/sports')
+        if not os.path.exists('plots/' + sys.argv[1] + '/sports'):
+            os.mkdir('plots/' + sys.argv[1] + '/sports')
+            
+        if not os.path.exists('stats/' + sys.argv[1] + '/sports'):
+            os.mkdir('stats/' + sys.argv[1] + '/sports')
         
-    if not os.path.exists('stats/' + sys.argv[1] + '/sports'):
-        os.mkdir('stats/' + sys.argv[1] + '/sports')
-    
-    print("----------------------------")
-    print("\nWill now count how much money was spent on 5aside football and how much we attended in " + sys.argv[1])
-    
-    att = 0
-    total = 0
-    
-    # Create dataframes to store stats in them
-    total_sports = pd.DataFrame(columns=["Attended", "Amount", "Average_att_per_month", "Average_spent_per_month"])
-    monthly_sports = pd.DataFrame(columns=["Month", "Attended", "Amount"])
-    
-    # for each month count how many football we attended
-    for m in months:
-        print("\nRetrieved the data for", m)
-        df_month = df_spendings[df_spendings["Month"] == m]
-        df_football = df_month[df_month["Event"] == 'Sports']
-        # retrieve the amount of times we attended sports
-        a = df_month['Event'].value_counts()['Sports']
-        # retrieve the money spent on sports
-        t = np.sum(df_football.Amount)
-        # add the total number of instances and amount spent
-        att += a
-        total += t
+        print("----------------------------")
+        print("\nWill now count how much money was spent on 5aside football and how much we attended in " + sys.argv[1])
+        
+        att = 0
+        total = 0
+        
+        # Create dataframes to store stats in them
+        total_sports = pd.DataFrame(columns=["Attended", "Amount", "Average_att_per_month", "Average_spent_per_month"])
+        monthly_sports = pd.DataFrame(columns=["Month", "Attended", "Amount"])
+        
+        # for each month count how many football we attended
+        for m in months:
+            print("\nRetrieved the data for", m)
+            df_month = df_spendings[df_spendings["Month"] == m]
+            df_football = df_month[df_month["Event"] == 'Sports']
+            # retrieve the amount of times we attended sports
+            a = df_month['Event'].value_counts()['Sports']
+            # retrieve the money spent on sports
+            t = np.sum(df_football.Amount)
+            # add the total number of instances and amount spent
+            att += a
+            total += t
+            # append the data in the stats csv
+            monthly_sports = monthly_sports.append({"Month": m, "Attended": a, "Amount": t}, ignore_index = True)
+        
+        print("\nTotal yearly sports stats:")
+        print("EUR " + str(total))
+        print("Attended " + str(att))
+        print("Average spent per month EUR", str(np.round(total/len(months), 2)))
+        print("Average att. per month", str(np.round(att/len(months), 2)))
+        
         # append the data in the stats csv
-        monthly_sports = monthly_sports.append({"Month": m, "Attended": a, "Amount": t}, ignore_index = True)
-    
-    print("\nTotal yearly sports stats:")
-    print("EUR " + str(total))
-    print("Attended " + str(att))
-    print("Average spent per month EUR", str(np.round(total/len(months), 2)))
-    print("Average att. per month", str(np.round(att/len(months), 2)))
-    
-    # append the data in the stats csv
-    total_sports = total_sports.append({"Attended": att, "Amount": total, "Average_att_per_month": np.round(att/len(months), 2), "Average_spent_per_month": np.round(total/len(months), 2)}, ignore_index = True)
-    
-    total_sports.to_csv("stats/" + sys.argv[1] + "/sports/" + sys.argv[1] + "_sports_yearly_stats.csv", index = False)
-    monthly_sports.to_csv("stats/" + sys.argv[1] + "/sports/" + sys.argv[1] + "_sports_monthly_stats.csv", index = False)
+        total_sports = total_sports.append({"Attended": att, "Amount": total, "Average_att_per_month": np.round(att/len(months), 2), "Average_spent_per_month": np.round(total/len(months), 2)}, ignore_index = True)
+        
+        total_sports.to_csv("stats/" + sys.argv[1] + "/sports/" + sys.argv[1] + "_sports_yearly_stats.csv", index = False)
+        monthly_sports.to_csv("stats/" + sys.argv[1] + "/sports/" + sys.argv[1] + "_sports_monthly_stats.csv", index = False)
 
-    print("\nStats saved!")
-    
-    print("\nWill now plot sports data!")
-    
-    plt.figure()
-    
-    # Plot the first line
-    plt.plot(months, monthly_sports.Attended, marker='o', linestyle='-', color='b', label='Sports attended ' + str(att))
+        print("\nStats saved!")
+        
+        print("\nWill now plot sports data!")
+        
+        plt.figure()
+        
+        # Plot the first line
+        plt.plot(months, monthly_sports.Attended, marker='o', linestyle='-', color='b', label='Sports attended ' + str(att))
 
-    # Plot the second line
-    plt.plot(months, monthly_sports.Amount, marker='s', linestyle='--', color='r', label='Spent on sports EUR' + str(total))
+        # Plot the second line
+        plt.plot(months, monthly_sports.Amount, marker='s', linestyle='--', color='r', label='Spent on sports EUR' + str(total))
 
-    # Add a title and labels
-    plt.title('Sports stats for year ' + sys.argv[1])
-    plt.xlabel('Month')
+        # Add a title and labels
+        plt.title('Sports stats for year ' + sys.argv[1])
+        plt.xlabel('Month')
 
-    # Add a grid
-    plt.grid(True)
+        # Add a grid
+        plt.grid(True)
 
-    # Show the legend
-    plt.legend()
+        # Show the legend
+        plt.legend()
 
-    # Display the graph
-    plt.savefig("plots/" + sys.argv[1] + "/sports/" + sys.argv[1] + "_sports_stats.png")
-    plt.close()
-    
-    print("\nPlotted sports data!")
+        # Display the graph
+        plt.savefig("plots/" + sys.argv[1] + "/sports/" + sys.argv[1] + "_sports_stats.png")
+        plt.close()
+        
+        print("\nPlotted sports data!")
 
 ###########################################################
 
@@ -338,9 +375,9 @@ for m in months:
     
     print("\nCalculated for " + m)
 
-total_month_save.to_csv("stats/2024/month/" + sys.argv[1] + "_monthly_savings.csv", index = False)
-total_month_spend.to_csv("stats/2024/month/" + sys.argv[1] + "_monthly_spendings.csv", index = False)
-total_month_earn.to_csv("stats/2024/month/" + sys.argv[1] + "_monthly_earnings.csv", index = False)
+total_month_save.to_csv("stats/" + sys.argv[1] + "/month/" + sys.argv[1] + "_monthly_savings.csv", index = False)
+total_month_spend.to_csv("stats/" + sys.argv[1] + "/month/" + sys.argv[1] + "_monthly_spendings.csv", index = False)
+total_month_earn.to_csv("stats/" + sys.argv[1] + "/month/" + sys.argv[1] + "_monthly_earnings.csv", index = False)
 
 print("\nSaved the CSVs!")
 
