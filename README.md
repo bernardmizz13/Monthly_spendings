@@ -10,13 +10,13 @@ python analyze.py date
 Instead of date type in the year for which you wish to analyze the monthly spendings, like for example:
 
 ```
-python analyze.py 2024
+python analyze.py 2025
 ```
 
 If you wish to calculate stats for events denoted by _Sports_ run:
 
 ```
-python analyze.py 2024 y
+python analyze.py 2025 y
 ```
 In folder data there is an example CSV file of how the monthly spendings should be saved and prepared for the python script, before running the script rename the CSV file to _monthly_spendings.csv_
 
