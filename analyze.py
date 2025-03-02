@@ -245,12 +245,13 @@ for m in months:
     df_month = stats[stats["Month"] == m]
     labels_ = df_month.Event
     amounts = df_month.Amount
-    labels = [f'{l}, EUR {s:0.2f}' for l, s in zip(labels_, amounts)]
+    # labels = [f'{l}, EUR {s:0.2f}' for l, s in zip(labels_, amounts)]
+    labels = [f'{l}, EUR {a:.2f}, {(a / np.sum(amounts)) * 100:.1f}%' for l, a in sorted(zip(labels_, amounts), key=lambda x: x[1], reverse=True)]
     # Create a larger figure
     plt.figure(figsize=(30, 19))
     # Plot the pie chart
     # Adjust pie chart properties
-    pie = plt.pie(amounts, autopct='%1.1f%%', radius=3000,  # Increase this to make sections larger
+    pie = plt.pie(amounts, autopct='%1.1f%%', radius=6000,  # Increase this to make sections larger
               frame=False, 
               pctdistance=0.85,  # Bring percentages closer to the pie
               labeldistance=1.2,  # Move labels closer
