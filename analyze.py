@@ -46,21 +46,21 @@ def rmtree(top):
 
 
 # Check if the folder exists before attempting to delete
-if os.path.exists(folder_path):
-    rmtree(folder_path)
-    print(f"The folder '{folder_path}' and all its contents have been deleted.")
+if os.path.exists(folder_path + '/' + sys.argv[1]):
+    rmtree(folder_path + '/' + sys.argv[1])
+    print(f"The folder '{folder_path}'" + '/' + sys.argv[1] + "and all its contents have been deleted.")
 else:
-    print(f"The folder '{folder_path}' does not exist.")
+    print(f"The folder '{folder_path}'" + '/' + sys.argv[1] + " does not exist.")
     
     # Path to the "plots" folder
 folder_path = 'plots'
 
 # Check if the folder exists before attempting to delete
-if os.path.exists(folder_path):
-    rmtree(folder_path)
-    print(f"The folder '{folder_path}' and all its contents have been deleted.")
+if os.path.exists(folder_path + '/' + sys.argv[1]):
+    rmtree(folder_path + '/' + sys.argv[1])
+    print(f"The folder '{folder_path}'" + '/' + sys.argv[1] + "and all its contents have been deleted.")
 else:
-    print(f"The folder '{folder_path}' does not exist.")
+    print(f"The folder '{folder_path}'" + '/' + sys.argv[1] + " does not exist.")
 
 if not os.path.exists('stats'):
     os.mkdir('stats')
@@ -169,14 +169,18 @@ for e in events:
     
     e_yearly = e_yearly.append({"Event": e, "Amount": np.round(np.sum(amounts), 2), "Monthly_average": np.round(np.average(amounts), 2)}, ignore_index = True)
             
-    plt.figure()
+    plt.figure(figsize=(14, 8))  # Increase width for better spacing
 
     # Plot the first line
-    plt.plot(months, amounts, marker='o', linestyle='-', color='b', label='Amount spent EUR ' + str(np.round(np.sum(amounts), 2)))
+    plt.plot(months, amounts, marker='o', linestyle='-', color='b', 
+             label='Amount spent EUR ' + str(np.round(np.sum(amounts), 2)))
 
     # Add a title and labels
     plt.title('Amount spent monthly for ' + e + ' for year ' + sys.argv[1])
     plt.xlabel('Month')
+
+    # Rotate x-axis labels for readability
+    plt.xticks(rotation=45, ha='right')  
 
     # Add a grid
     plt.grid(True)
@@ -184,7 +188,7 @@ for e in events:
     # Show the legend
     plt.legend()
 
-    # Display the graph
+    # Save the figure
     plt.savefig("plots/" + sys.argv[1] + "/events/" + sys.argv[1] + "_" + e + "_monthly_spendings.png")        
     plt.close()
     # plot for each month
