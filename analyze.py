@@ -247,9 +247,14 @@ for m in months:
     amounts = df_month.Amount
     labels = [f'{l}, EUR {s:0.2f}' for l, s in zip(labels_, amounts)]
     # Create a larger figure
-    plt.figure(figsize=(19, 19))
+    plt.figure(figsize=(30, 19))
     # Plot the pie chart
-    pie = plt.pie(amounts,autopct='%1.1f%%', radius=3000, frame=False,   pctdistance=0.85, labeldistance=2.1, startangle=140)
+    # Adjust pie chart properties
+    pie = plt.pie(amounts, autopct='%1.1f%%', radius=3000,  # Increase this to make sections larger
+              frame=False, 
+              pctdistance=0.85,  # Bring percentages closer to the pie
+              labeldistance=1.2,  # Move labels closer
+              startangle=140)
     plt.axis('equal')
     # Add a legend
     plt.legend(bbox_to_anchor=(0.85, 1), loc='upper left', labels=labels, fontsize=15)
