@@ -46,21 +46,21 @@ def rmtree(top):
 
 
 # Check if the folder exists before attempting to delete
-if os.path.exists(folder_path + '/' + sys.argv[1]):
+if os.path.exists(os.path.join(folder_path, sys.argv[1])):
     rmtree(folder_path + '/' + sys.argv[1])
-    print(f"The folder '{folder_path}'" + '/' + sys.argv[1] + "and all its contents have been deleted.")
+    print(f"The folder '{folder_path}//" + sys.argv[1] + "' and all its contents have been deleted.")
 else:
-    print(f"The folder '{folder_path}'" + '/' + sys.argv[1] + " does not exist.")
+    print(f"The folder '{folder_path}/" + sys.argv[1] + "' does not exist.")
     
     # Path to the "plots" folder
 folder_path = 'plots'
 
 # Check if the folder exists before attempting to delete
-if os.path.exists(folder_path + '/' + sys.argv[1]):
+if os.path.exists(os.path.join(folder_path, sys.argv[1])):
     rmtree(folder_path + '/' + sys.argv[1])
-    print(f"The folder '{folder_path}'" + '/' + sys.argv[1] + "and all its contents have been deleted.")
+    print(f"The folder '{folder_path}/" + sys.argv[1] + "' and all its contents have been deleted.")
 else:
-    print(f"The folder '{folder_path}'" + '/' + sys.argv[1] + " does not exist.")
+    print(f"The folder '{folder_path}/" + sys.argv[1] + "' does not exist.")
 
 if not os.path.exists('stats'):
     os.mkdir('stats')
@@ -69,11 +69,11 @@ if not os.path.exists('plots'):
     os.mkdir('plots')
 
 # make the directory for the year if it does not exist
-if not os.path.exists('stats/' + sys.argv[1]):
-    os.mkdir('stats/' + sys.argv[1])
+if not os.path.exists(os.path.join('stats', sys.argv[1])):
+    os.mkdir(os.path.join('stats', sys.argv[1]))
 
-if not os.path.exists('plots/' + sys.argv[1]):
-    os.mkdir('plots/' + sys.argv[1])
+if not os.path.exists(os.path.join('plots', sys.argv[1])):
+    os.mkdir(os.path.join('plots', sys.argv[1]))
 
 # read the monthly spendings csv, pass the year as a command line argument when running the script
 df_spendings = pd.read_csv("data/" + sys.argv[1] + "_monthly_spendings.csv", sep = ",")
