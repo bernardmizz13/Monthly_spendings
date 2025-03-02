@@ -226,19 +226,28 @@ plt.close()
 
 plt.figure(figsize=(20, 10))  # Width = 10, Height = 6
 
-# Create the bar chart with two sets of bars
-plt.bar(e_yearly.Event.tolist(), e_yearly.Monthly_average.tolist())
-    
-# Add a title and labels
+bar_width = 0.6  # Increase bar width
+index = np.arange(len(e_yearly)) * 1.5  # Increase spacing
+
+plt.bar(index, e_yearly.Monthly_average.tolist(), width=bar_width, label='Spending')
+
+# Add labels and title
 plt.title('Monthly average event spendings')
 plt.xlabel('Event')
 plt.ylabel('Monthly average spending in EUR')
 plt.grid(True)
-plt.xticks(index + bar_width / 2, e_yearly.Event.tolist())
+plt.xticks(index, e_yearly.Event.tolist(), rotation=45, ha="right")  # Adjust labels
+
 # Add a legend
-#plt.legend()
-plt.savefig("plots/" + sys.argv[1] + "/year/" + sys.argv[1] + "_monthly_average_event_spendings.png")
+plt.legend()
+plt.tight_layout()  # Adjust layout for better spacing
+
+# Save the plot
+plt.savefig(f"plots/" + sys.argv[1] + "/year/" + sys.argv[1] + "_monthly_average_event_spendings.png")
 plt.close()
+
+plt.figure(figsize=(20, 10))  # Width = 10, Height = 6
+
 
 e_yearly.to_csv("stats/" + sys.argv[1] + "/year/" + sys.argv[1] + "_yearly_spendings.csv", index = False)
 
