@@ -196,58 +196,67 @@ for e in events:
     print("Total: " + str(np.round(np.sum(amounts), 2)))
     print("Monthly average: " + str(np.round(np.average(amounts), 2)))
 
-# Define the positions of the bars
-bar_width = 0.35
+
 index = np.arange(len(e_yearly.Event.tolist()))
 
 # Increase the width of the figure
-plt.figure(figsize=(20, 10))  # Width = 10, Height = 6
+plt.figure(figsize=(20, 10))  # Width = 20, Height = 10
 
-# Create the bar chart with two sets of bars    
+# Create the bar chart    
 bar_width = 0.6  # Increase bar width
 index = np.arange(len(e_yearly)) * 1.5  # Increase spacing
 
-plt.bar(index, e_yearly.Amount.tolist(), width=bar_width, label='Spending')
+bars = plt.bar(index, e_yearly.Amount.tolist(), width=bar_width, label='Spending', color='royalblue')
+
+# Set a fixed percentage of the max height to place the labels inside the bars
+fixed_label_height = max(e_yearly.Amount) * 0.2  # Adjust 0.2 (20%) as needed
+
+# Add labels inside the bars at a uniform height
+for bar, amount in zip(bars, e_yearly.Amount.tolist()):
+    plt.text(bar.get_x() + bar.get_width() / 2, fixed_label_height, 
+             f'{amount:.2f}', ha='center', va='center', fontsize=9, color='black')
 
 # Add labels and title
-plt.title('Yearly Event Spendings')
+plt.title('Yearly Event Spendings in EUR')
 plt.xlabel('Event')
 plt.ylabel('Spending in EUR')
 plt.grid(True)
 plt.xticks(index, e_yearly.Event.tolist(), rotation=45, ha="right")  # Adjust labels
 
-# Add a legend
-plt.legend()
 plt.tight_layout()  # Adjust layout for better spacing
 
 # Save the plot
 plt.savefig(f"plots/{sys.argv[1]}/year/{sys.argv[1]}_event_spendings.png")
 plt.close()
 
-plt.figure(figsize=(20, 10))  # Width = 10, Height = 6
+# Create a new figure
+plt.figure(figsize=(20, 10))  # Width = 20, Height = 10
 
 bar_width = 0.6  # Increase bar width
 index = np.arange(len(e_yearly)) * 1.5  # Increase spacing
 
-plt.bar(index, e_yearly.Monthly_average.tolist(), width=bar_width, label='Spending')
+bars = plt.bar(index, e_yearly.Monthly_average.tolist(), width=bar_width, label='Spending', color='royalblue')
+
+# Set a fixed percentage of the max height to place the labels inside the bars
+fixed_label_height = max(e_yearly.Monthly_average) * 0.2  # Adjust percentage as needed
+
+# Add event labels inside the bars at a uniform height
+for bar, amount in zip(bars, e_yearly.Monthly_average.tolist()):
+    plt.text(bar.get_x() + bar.get_width() / 2, fixed_label_height, 
+             f'{amount:.2f}', ha='center', va='center', fontsize=9, color='black')
 
 # Add labels and title
-plt.title('Monthly average event spendings')
+plt.title('Monthly Average Event Spendings')
 plt.xlabel('Event')
-plt.ylabel('Monthly average spending in EUR')
+plt.ylabel('Monthly Average Spending in EUR')
 plt.grid(True)
 plt.xticks(index, e_yearly.Event.tolist(), rotation=45, ha="right")  # Adjust labels
 
-# Add a legend
-plt.legend()
 plt.tight_layout()  # Adjust layout for better spacing
 
 # Save the plot
-plt.savefig(f"plots/" + sys.argv[1] + "/year/" + sys.argv[1] + "_monthly_average_event_spendings.png")
+plt.savefig(f"plots/{sys.argv[1]}/year/{sys.argv[1]}_monthly_average_event_spendings.png")
 plt.close()
-
-plt.figure(figsize=(20, 10))  # Width = 10, Height = 6
-
 
 e_yearly.to_csv("stats/" + sys.argv[1] + "/year/" + sys.argv[1] + "_yearly_spendings.csv", index = False)
 
