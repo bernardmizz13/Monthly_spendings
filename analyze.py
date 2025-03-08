@@ -197,62 +197,64 @@ for e in events:
     print("Monthly average: " + str(np.round(np.average(amounts), 2)))
 
 
-index = np.arange(len(e_yearly.Event.tolist()))
+import numpy as np
+import matplotlib.pyplot as plt
+import sys
 
-# Increase the width of the figure
+# Sort data by Amount in descending order
+e_yearly_sorted = e_yearly.sort_values(by="Amount", ascending=False)
+
+index = np.arange(len(e_yearly_sorted))  # Ensure correct indexing
+
 plt.figure(figsize=(20, 10))  # Width = 20, Height = 10
 
-# Create the bar chart    
-bar_width = 0.6  # Increase bar width
-index = np.arange(len(e_yearly)) * 1.5  # Increase spacing
+# Create the sorted bar chart
+bar_width = 0.6  
+bars = plt.bar(index, e_yearly_sorted.Amount.tolist(), width=bar_width, color='royalblue', label='Spending')
 
-bars = plt.bar(index, e_yearly.Amount.tolist(), width=bar_width, label='Spending', color='royalblue')
-
-# Set a fixed percentage of the max height to place the labels inside the bars
-fixed_label_height = max(e_yearly.Amount) * 0.2  # Adjust 0.2 (20%) as needed
-
-# Add labels inside the bars at a uniform height
-for bar, amount in zip(bars, e_yearly.Amount.tolist()):
-    plt.text(bar.get_x() + bar.get_width() / 2, fixed_label_height, 
-             f'{amount:.2f}', ha='center', va='center', fontsize=9, color='black')
+# Add text labels **above** the bars
+for bar, amount in zip(bars, e_yearly_sorted.Amount.tolist()):
+    plt.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + (max(e_yearly_sorted.Amount) * 0.02), 
+             f'{amount:.2f}', ha='center', va='bottom', fontsize=9, color='black')
 
 # Add labels and title
-plt.title('Yearly Event Spendings in EUR')
-plt.xlabel('Event')
-plt.ylabel('Spending in EUR')
-plt.grid(True)
-plt.xticks(index, e_yearly.Event.tolist(), rotation=45, ha="right")  # Adjust labels
+plt.title('Yearly Event Spendings in EUR', fontsize=16)
+plt.xlabel('Event', fontsize=14)
+plt.ylabel('Spending in EUR', fontsize=14)
+plt.grid(axis='y', linestyle='--', alpha=0.7)
+plt.xticks(index, e_yearly_sorted.Event.tolist(), rotation=45, ha="right")
 
-plt.tight_layout()  # Adjust layout for better spacing
+plt.tight_layout()  
 
 # Save the plot
 plt.savefig(f"plots/{sys.argv[1]}/year/{sys.argv[1]}_event_spendings.png")
 plt.close()
 
-# Create a new figure
+# ======== SECOND BAR CHART ======== #
+
+# Sort data by Monthly Average in descending order
+e_yearly_sorted = e_yearly.sort_values(by="Monthly_average", ascending=False)
+
+index = np.arange(len(e_yearly_sorted))
+
 plt.figure(figsize=(20, 10))  # Width = 20, Height = 10
 
-bar_width = 0.6  # Increase bar width
-index = np.arange(len(e_yearly)) * 1.5  # Increase spacing
+# Create the sorted bar chart
+bars = plt.bar(index, e_yearly_sorted.Monthly_average.tolist(), width=bar_width, color='royalblue', label='Spending')
 
-bars = plt.bar(index, e_yearly.Monthly_average.tolist(), width=bar_width, label='Spending', color='royalblue')
-
-# Set a fixed percentage of the max height to place the labels inside the bars
-fixed_label_height = max(e_yearly.Monthly_average) * 0.2  # Adjust percentage as needed
-
-# Add event labels inside the bars at a uniform height
-for bar, amount in zip(bars, e_yearly.Monthly_average.tolist()):
-    plt.text(bar.get_x() + bar.get_width() / 2, fixed_label_height, 
-             f'{amount:.2f}', ha='center', va='center', fontsize=9, color='black')
+# Add text labels **above** the bars
+for bar, amount in zip(bars, e_yearly_sorted.Monthly_average.tolist()):
+    plt.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + (max(e_yearly_sorted.Monthly_average) * 0.02), 
+             f'{amount:.2f}', ha='center', va='bottom', fontsize=9, color='black')
 
 # Add labels and title
-plt.title('Monthly Average Event Spendings')
-plt.xlabel('Event')
-plt.ylabel('Monthly Average Spending in EUR')
-plt.grid(True)
-plt.xticks(index, e_yearly.Event.tolist(), rotation=45, ha="right")  # Adjust labels
+plt.title('Monthly Average Event Spendings', fontsize=16)
+plt.xlabel('Event', fontsize=14)
+plt.ylabel('Monthly Average Spending in EUR', fontsize=14)
+plt.grid(axis='y', linestyle='--', alpha=0.7)
+plt.xticks(index, e_yearly_sorted.Event.tolist(), rotation=45, ha="right")
 
-plt.tight_layout()  # Adjust layout for better spacing
+plt.tight_layout()
 
 # Save the plot
 plt.savefig(f"plots/{sys.argv[1]}/year/{sys.argv[1]}_monthly_average_event_spendings.png")
@@ -269,31 +271,49 @@ print("\nWill now plot pie charts!")
 if not os.path.exists('plots/' + sys.argv[1] + '/month'):
     os.mkdir('plots/' + sys.argv[1] + '/month')
 
-# iterate the stats using the month
+# Iterate over the months
 for m in months:
-    # group the stats by month
+    # Filter data for the specific month
     df_month = stats[stats["Month"] == m]
+    
     labels_ = df_month.Event
     amounts = df_month.Amount
-    # labels = [f'{l}, EUR {s:0.2f}' for l, s in zip(labels_, amounts)]
-    labels = [f'{l}, EUR {a:.2f}, {(a / np.sum(amounts)) * 100:.1f}%' for l, a in sorted(zip(labels_, amounts), key=lambda x: x[1], reverse=True)]
+
+    # Sort labels and amounts in descending order based on Amount
+    sorted_data = sorted(zip(labels_, amounts), key=lambda x: x[1], reverse=True)
+    labels, amounts = zip(*sorted_data)
+
+    # Generate formatted labels for the legend
+    legend_labels = [f'{l}, EUR {a:.2f}, {(a / np.sum(amounts)) * 100:.1f}%' for l, a in sorted_data]
+
     # Create a larger figure
-    plt.figure(figsize=(30, 19))
-    # Plot the pie chart
-    # Adjust pie chart properties
-    pie = plt.pie(amounts, autopct='%1.1f%%', radius=6000,  # Increase this to make sections larger
-              frame=False, 
-              pctdistance=0.85,  # Bring percentages closer to the pie
-              labeldistance=1.2,  # Move labels closer
-              startangle=140)
-    plt.axis('equal')
-    # Add a legend
-    plt.legend(bbox_to_anchor=(0.85, 1), loc='upper left', labels=labels, fontsize=15)
-    # Add a title
-    plt.title("Monthly spendings for " + m + " " + sys.argv[1], fontsize=25)
-    # Save the pie chart
-    plt.savefig("plots/" + sys.argv[1] + "/month/" + sys.argv[1] + "_" + m + "_spendings.png")
+    plt.figure(figsize=(20, 10))
+
+    # Create the bar chart
+    bar_width = 0.6
+    index = np.arange(len(labels))
+
+    bars = plt.bar(index, amounts, width=bar_width, color='royalblue', label='Spending')
+
+    # Add text labels on top of bars
+    for bar, amount in zip(bars, amounts):
+        plt.text(bar.get_x() + bar.get_width() / 2, bar.get_height(), 
+                 f'{amount:.2f}', ha='center', va='bottom', fontsize=9)
+
+    # Add labels and title
+    plt.title("Monthly Spendings for " + m + " " + sys.argv[1], fontsize=20)
+    plt.xlabel("Event", fontsize=14)
+    plt.ylabel("Spending in EUR", fontsize=14)
+    plt.xticks(index, labels, rotation=45, ha="right")  # Rotate labels for readability
+    plt.grid(axis='y', linestyle='--', alpha=0.7)
+
+    # Adjust layout
+    plt.tight_layout()
+
+    # Save the bar chart
+    plt.savefig(f"plots/{sys.argv[1]}/month/{sys.argv[1]}_{m}_spendings.png")
     plt.close()
+
     print("\nPlotted for", m)
  
 ###########################################################
