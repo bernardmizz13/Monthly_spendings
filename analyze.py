@@ -327,7 +327,7 @@ if len(sys.argv) > 2:
             os.mkdir('stats/' + sys.argv[1] + '/sports')
         
         print("----------------------------")
-        print("\nWill now count how much money was spent on 5aside football and how much we attended in " + sys.argv[1])
+        print("\nWill now count how much money was spent on Sports and how much we attended in " + sys.argv[1])
         
         att = 0
         total = 0
@@ -341,15 +341,19 @@ if len(sys.argv) > 2:
             print("\nRetrieved the data for", m)
             df_month = df_spendings[df_spendings["Month"] == m]
             df_football = df_month[df_month["Event"] == 'Sports']
-            # retrieve the amount of times we attended sports
-            a = df_month['Event'].value_counts()['Sports']
-            # retrieve the money spent on sports
-            t = np.sum(df_football.Amount)
-            # add the total number of instances and amount spent
-            att += a
-            total += t
-            # append the data in the stats csv
-            monthly_sports = monthly_sports.append({"Month": m, "Attended": a, "Amount": t}, ignore_index = True)
+            if df_football.shape[0] > 0:
+                # retrieve the amount of times we attended sports
+                a = df_month['Event'].value_counts()['Sports']
+                # retrieve the money spent on sports
+                t = np.sum(df_football.Amount)
+                # add the total number of instances and amount spent
+                att += a
+                total += t
+                # append the data in the stats csv
+                monthly_sports = monthly_sports.append({"Month": m, "Attended": a, "Amount": t}, ignore_index = True)
+            else:
+                print("\nNo sports was played during", m)
+                monthly_sports = monthly_sports.append({"Month": m, "Attended": 0, "Amount": 0}, ignore_index = True)
         
         print("\nTotal yearly sports stats:")
         print("EUR " + str(total))
