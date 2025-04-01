@@ -169,24 +169,29 @@ for e in events:
     e_yearly = e_yearly.append({"Event": e, "Amount": np.round(np.sum(amounts), 2), "Monthly_average": np.round(np.average(amounts), 2)}, ignore_index = True)
             
     plt.figure(figsize=(14, 8))  # Increase width for better spacing
-
+    
     # Plot the first line
     plt.plot(months, amounts, marker='o', linestyle='-', color='b', 
-             label='Amount spent EUR ' + str(np.round(np.sum(amounts), 2)))
-
+            label='Amount spent EUR ' + str(np.round(np.sum(amounts), 2)))
+    
     # Add a title and labels
     plt.title('Amount spent monthly for ' + e + ' for year ' + sys.argv[1])
     plt.xlabel('Month')
-
+    
     # Rotate x-axis labels for readability
     plt.xticks(rotation=45, ha='right')  
-
+    
+    # Add values on points
+    for i, txt in enumerate(amounts):
+        plt.text(months[i], amounts[i], str(round(txt, 2)), 
+                ha='center', va='bottom', fontsize=12, color='black')
+    
     # Add a grid
     plt.grid(True)
-
+    
     # Show the legend
     plt.legend()
-
+    
     # Save the figure
     plt.savefig("plots/" + sys.argv[1] + "/events/" + sys.argv[1] + "_" + e + "_monthly_spendings.png")        
     plt.close()
