@@ -6,9 +6,6 @@ import os # to create directory
 import shutil # for folder deletion
 import stat # for folder removal
 
-# Path to the "stats" folder
-folder_path = 'stats'
-
 def rmtree(top):
     for root, dirs, files in os.walk(top, topdown=False):
         for name in files:
@@ -44,6 +41,8 @@ def rmtree(top):
         except Exception as e:
             print(f"shutil failed to delete the top directory {top}: {e}")
 
+# Path to the "stats" folder
+folder_path = 'stats'
 
 # Check if the folder exists before attempting to delete
 if os.path.exists(os.path.join(folder_path, sys.argv[1])):
@@ -52,7 +51,7 @@ if os.path.exists(os.path.join(folder_path, sys.argv[1])):
 else:
     print(f"The folder '{folder_path}/" + sys.argv[1] + "' does not exist.")
     
-    # Path to the "plots" folder
+# Path to the "plots" folder
 folder_path = 'plots'
 
 # Check if the folder exists before attempting to delete
@@ -266,7 +265,7 @@ print("\nSaved and plotted the yearly stats")
     
 ###########################################################
 print("----------------------------")
-print("\nWill now plot pie charts!")
+print("\nWill now plot bar graphs!")
 
 if not os.path.exists('plots/' + sys.argv[1] + '/month'):
     os.mkdir('plots/' + sys.argv[1] + '/month')
@@ -467,6 +466,29 @@ print("\nFor year " + sys.argv[1])
 print("Earned: " + str(np.sum(total_month_earn.Earned)))
 print("Spent: " + str(np.sum(total_month_spend.Spent)))
 print("Saved: " + str(np.sum(total_month_save.Saved)))
+
+###########################################################
+
+year = sys.argv[1]
+earned = np.sum(total_month_earn.Earned)
+spent = np.sum(total_month_spend.Spent)
+saved = np.sum(total_month_save.Saved)
+
+# Create a DataFrame
+summary_df = pd.DataFrame({
+    "Year": [year],
+    "Earned": [earned],
+    "Spent": [spent],
+    "Saved": [saved]
+})
+            
+if not os.path.exists("stats/" + sys.argv[1] + "/summary/"):
+            os.mkdir("stats/" + sys.argv[1] + "/summary/")
+
+# Save to CSV
+summary_df.to_csv("stats/" + sys.argv[1] + "/summary/" + sys.argv[1] + "_summary.csv", index=False)
+
+print("Summary saved to summary.csv")
 
 ###########################################################
 
