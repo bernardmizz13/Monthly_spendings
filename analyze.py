@@ -449,20 +449,42 @@ print("\nSaved the CSVs!")
 
 print("\nWill now plot earnings, spendings and savings for each month in " + sys.argv[1])
 
-plt.figure()
-# Plot the first line
-plt.plot(months, total_month_save.Saved.tolist(), marker='o', linestyle='-', color='b', label='Amount saved EUR ' + str(np.sum(total_month_earn.Earned)))
-plt.plot(months, total_month_spend.Spent.tolist(), marker='s', linestyle='--', color='r', label='Amount spent EUR ' + str(np.sum(total_month_spend.Spent)))
-plt.plot(months, total_month_earn.Earned.tolist(), marker='*', linestyle='-.', color='g', label='Amount earned EUR ' + str(np.sum(total_month_save.Saved)))
-# Add a title and labels
+# Convert data to lists
+saved_values = total_month_save.Saved.tolist()
+spend_values = total_month_spend.Spent.tolist()
+earn_values = total_month_earn.Earned.tolist()
+
+x = np.arange(len(months))  # the label locations
+
+width = 0.25  # width of the bars
+
+plt.figure(figsize=(12, 6))
+
+# Plot bars for each category
+bars1 = plt.bar(x - width, saved_values, width, label='Saved EUR ' + str(np.sum(saved_values)), color='b')
+bars2 = plt.bar(x, spend_values, width, label='Spent EUR ' + str(np.sum(spend_values)), color='r')
+bars3 = plt.bar(x + width, earn_values, width, label='Earned EUR ' + str(np.sum(earn_values)), color='g')
+
+# Annotate each bar with its value
+def annotate_bars(bars, color):
+    for bar in bars:
+        height = bar.get_height()
+        plt.text(bar.get_x() + bar.get_width()/2, height, f'{height:.0f}', ha='center', va='bottom', fontsize=8, color=color)
+
+annotate_bars(bars1, 'b')
+annotate_bars(bars2, 'r')
+annotate_bars(bars3, 'g')
+
+# Title and labels
 plt.title('Amounts earned, spent and saved monthly for year ' + sys.argv[1])
 plt.xlabel('Month')
-# Add a grid
-plt.grid(True)
-# Show the legend
+plt.xticks(x, months)  # set the month labels
+plt.grid(axis='y', linestyle='--', alpha=0.7)
 plt.legend()
-# Display the graph
-plt.savefig("plots/" + sys.argv[1] + "/month/" + sys.argv[1] + "_monthly_e_s_s.png")        
+
+# Save and close
+plt.tight_layout()
+plt.savefig("plots/" + sys.argv[1] + "/month/" + sys.argv[1] + "_monthly_e_s_s_bar.png")        
 plt.close()
 
 print("\nSuccessfully plotted the graphs!")
