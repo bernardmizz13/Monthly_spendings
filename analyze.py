@@ -137,6 +137,13 @@ if not os.path.exists('plots/' + sys.argv[1] + '/year'):
     
 if not os.path.exists('stats/' + sys.argv[1] + '/year'):
     os.mkdir('stats/' + sys.argv[1] + '/year')
+    
+if not os.path.exists('plots/' + sys.argv[1] + '/month'):
+    os.mkdir('plots/' + sys.argv[1] + '/month')
+    
+if not os.path.exists('stats/' + sys.argv[1] + '/month'):
+    os.mkdir('stats/' + sys.argv[1] + '/month')
+
 
 print("----------------------------")
 print("\nWill now plot line graphs!")
@@ -199,6 +206,56 @@ for e in events:
     print("\nPlotted amounts spent monthly for " + e)
     print("Total: " + str(np.round(np.sum(amounts), 2)))
     print("Monthly average: " + str(np.round(np.average(amounts), 2)))
+
+###############################################
+
+if not os.path.exists('plots/' + sys.argv[1] + '/month/per_event'):
+    os.mkdir('plots/' + sys.argv[1] + '/month/per_event')
+
+if not os.path.exists('stats/' + sys.argv[1] + '/month/per_event'):
+    os.mkdir('stats/' + sys.argv[1] + '/month/per_event')
+
+
+# check each event and then each month to see what was spent on that event each month
+for e in events:
+    # list to store the amount spent for that event for each month
+    month_event_spendings = []
+    
+    for m in months:
+        df_month = stats[stats["Month"] == m]
+        df_event = df_month[df_month["Event"] == e]
+        
+        # check whether there was this particular event, get the no. of rows
+        no_of_events = df_event.shape[0]
+        
+        # if there were no events then add 0, else add the amount
+        if no_of_events == 0:
+            month_event_spendings.append(0)
+        else:
+            month_event_spendings.append(np.sum(df_event.Amount.tolist()))
+
+    # create a dataframe
+    e_monthly = pd.DataFrame({"Month": months, "Amount": month_event_spendings})
+    e_monthly.to_csv("stats/" + sys.argv[1] + "/month/per_event/" + sys.argv[1] + "_" + e + ".csv", index = False)
+    
+    # Plotting the line graph
+    plt.figure(figsize=(10, 6))
+    plt.plot(months, month_event_spendings, marker='o', linestyle='-', label=e)
+
+    # Add value labels at each data point
+    for i, value in enumerate(month_event_spendings):
+        plt.text(months[i], value, str(value), ha='center', va='bottom')
+
+    plt.title(f"Monthly Spending for Event: {e}")
+    plt.xlabel("Month")
+    plt.ylabel("Amount Spent")
+    plt.grid(True)
+    plt.tight_layout()
+    plt.xticks(rotation=45)  # rotate if months are long
+    plt.savefig("plots/" + sys.argv[1] + "/month/per_event/" + sys.argv[1] + "_" + e + ".png")
+    plt.close()
+    
+###############################################
 
 
 import numpy as np
@@ -271,9 +328,6 @@ print("\nSaved and plotted the yearly stats")
 ###########################################################
 print("----------------------------")
 print("\nWill now plot bar graphs!")
-
-if not os.path.exists('plots/' + sys.argv[1] + '/month'):
-    os.mkdir('plots/' + sys.argv[1] + '/month')
 
 # Iterate over the months
 for m in months:
